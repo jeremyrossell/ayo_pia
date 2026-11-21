@@ -11,14 +11,24 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
-from ml_pipeline import (
-    CATEGORICAL_COLS,
-    COST_MAP,
-    FEATURE_COLS,
-    NUMERIC_COLS,
-    TARGET_COL,
-    compute_regret,
-)
+try:
+    from ayo_pia.ml_pipeline import (
+        CATEGORICAL_COLS,
+        COST_MAP,
+        FEATURE_COLS,
+        NUMERIC_COLS,
+        TARGET_COL,
+        compute_regret,
+    )
+except ImportError:
+    from ml_pipeline import (
+        CATEGORICAL_COLS,
+        COST_MAP,
+        FEATURE_COLS,
+        NUMERIC_COLS,
+        TARGET_COL,
+        compute_regret,
+    )
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score
@@ -27,7 +37,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
-OUTPUT_DIR = Path("output")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+OUTPUT_DIR = PROJECT_ROOT / "output"
 LABELS = sorted(COST_MAP)
 
 
@@ -88,7 +99,7 @@ def save_confusion_matrix(y_true, preds, title: str, path: Path) -> None:
 
 
 def main() -> None:
-    OUTPUT_DIR.mkdir(exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     train_df = pd.read_csv(OUTPUT_DIR / "train_labeled.csv")
     test_df = pd.read_csv(OUTPUT_DIR / "test_labeled.csv")
     X_train, y_train = train_df[FEATURE_COLS], train_df[TARGET_COL]
