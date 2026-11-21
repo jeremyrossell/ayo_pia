@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
@@ -86,8 +87,9 @@ def evaluate_model(
 
 
 def main() -> None:
-    train_df = pd.read_csv("output/train_labeled.csv")
-    test_df = pd.read_csv("output/test_labeled.csv")
+    project_root = Path(__file__).resolve().parents[2]
+    train_df = pd.read_csv(project_root / "output" / "train_labeled.csv")
+    test_df = pd.read_csv(project_root / "output" / "test_labeled.csv")
 
     print_class_balance("train", train_df[TARGET_COL])
     print_class_balance("test", test_df[TARGET_COL])
