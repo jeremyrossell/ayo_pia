@@ -35,7 +35,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = PROJECT_ROOT / "output"
@@ -98,6 +98,20 @@ def save_confusion_matrix(y_true, preds, title: str, path: Path) -> None:
     plt.close(fig)
 
 
+def save_tree(model: Pipeline, path: Path) -> None:
+    prep, clf = model.named_steps["prep"], model.named_steps["clf"]
+    names = list(prep.get_feature_names_out())
+
+    fig, ax = plt.subplots(figsize=(40, 16))
+    plot_tree(
+        clf, feature_names=names, class_names=list(clf.classes_),
+        filled=True, rounded=True, fontsize=7, ax=ax,
+    )
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     train_df = pd.read_csv(OUTPUT_DIR / "train_labeled.csv")
@@ -108,6 +122,8 @@ def main() -> None:
     summary = []
     for name, model in build_models().items():
         model.fit(X_train, y_train)
+        if name == "decision_tree":
+            save_tree(model, OUTPUT_DIR / "decision_tree.png")
         preds = model.predict(X_test)
 
         save_confusion_matrix(
